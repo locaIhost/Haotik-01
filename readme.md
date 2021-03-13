@@ -7,7 +7,7 @@
 + **Stable** mood and hot americano
 
 ##      Using Perl!     :camel:
-#   :gem: ***This repository contains scripts written only in Perl!*** :gem:
+#   :gem: ***This repository contains scripts written only in Perl!***
 ```perl     
       (@_       
       ) \________________________________________________              > haxa 😈

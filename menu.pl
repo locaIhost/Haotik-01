@@ -31,33 +31,54 @@ sub menu()
 	You summoning Haotik!
 	   what do u need?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-1. Show INT
-2. Show IP 
-3. Show LOG
-4. Check beep
+1. Show interface.
+2. Show ip address.
+3. Show log.
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+4. Check beep.
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+5. Configure Mikrotik.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 H
+
+	my ( $menu ) = <<'A';
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1. Show interface.
+2. Show ip address.
+3. Show log.
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+4. Check beep.
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+5. Configure Mikrotik!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A
+
+
 my ( $msg0, $msg1,	# interactive.
-	 $msg2, $msg3,	  # Interactive.
-	 $msg4, $msg5,	  # Reserved.
-	 $msg6, $msg7,	  # Reserved.
-	 $msg8, $msg9,	  # Reserved.
-	 $msg_clear,	    # Screen and terminal clear.
-	 $msg_space,	    # Multiline symbol null  " " for Menu.
-	 $msg_tilda, 	    # Multiline symbol tilda "~" for Menu.
-	 $msg_caret,	    # Multiline symbol caret "^" for Menu.
-	 $msg_bye		      # QA procedure Drop.
+	 $msg2, $msg3,	# Interactive.
+	 $msg4, $msg5,	# Reserved.
+	 $msg6, $msg7,	# Reserved.
+	 $msg8, $msg9,	# Reserved.
+	 $msg_clear,	# Screen and terminal clear.
+	 $msg_space,	# Multiline symbol null  " " for Menu.
+	 $msg_tilda, 	# Multiline symbol tilda "~" for Menu.
+	 $msg_caret,	# Multiline symbol caret "^" for Menu.
+	 $msg_exc,		# Multiline symbol exclamation "!" for Menu.
+	 $msg_bye		# Drop
 	);
 
 ( $msg_clear ) = qq([2J\033[H\033[J);
 ( $msg_space ) = q( ) x 13;
 ( $msg_tilda ) = q(~) x 46;
 ( $msg_caret ) = q(^) x 46;
+( $msg_exc	 ) = q(+!) x 23;
 ( $msg_bye )  = q(Bye! ) x 10000; 
 ( $msg0 ) = qq(\nSend me number: => );
 ( $msg1 ) = qq($msg_clear$msg_tilda\n\e[1;5;35m$msg_space SELECTED I\e[0m\n$msg_tilda);
 ( $msg2 ) = qq($msg_clear$msg_tilda\n\e[1;5;31m$msg_space SELECTED II\e[0m\n$msg_tilda);
 ( $msg3 ) = qq($msg_clear$msg_tilda\n\e[1;5;31m$msg_space SELECTED III\e[0m\n$msg_tilda);
+( $msg4 ) = qq($msg_clear$msg_tilda\n\e[1;5;31m$msg_space SELECTED IV\e[0m\n$msg_tilda);
+( $msg5 ) = qq($msg_clear$msg_tilda\n\e[1;5;31m$msg_space SELECTED V\e[0m\n$msg_tilda);
 
 print $msg;
 while (1)
@@ -78,6 +99,18 @@ while (1)
 		{
 			printf($msg3);
 		}
+		elsif ($query eq "4")
+		{
+			printf($msg4);
+			&ssh_beep,
+			printf($msg_clear),
+			printf($menu);
+		}
+		elsif ($query eq "5")
+		{
+			printf($msg5);
+			&config_menu;
+		}
 		else 
 		{
 			print($msg_bye),
@@ -87,8 +120,66 @@ while (1)
 	}
 };
 
-&menu
 
+
+sub ssh_beep
+{
+	use Net::OpenSSH;
+	my ( $name, $addr, $pass, $off, $beep, $get );
+	( $name ) = qq(YOU_LOGIN);
+	( $addr ) = qq(YOU_IP);
+	( $pass ) = "YOU_PASS";
+	( $off ) = int(7);
+	( $get ) = Net::OpenSSH->new
+	(
+    $addr,
+    user        => $name,
+    password    => $pass,
+    timeout     => $off,
+    master_opts => [ -o => "StrictHostKeyChecking=no" ]
+	);
+	( $beep ) = ("beep frequency=10101 length=0.1");
+	( $get )->capture( $beep ) or die "I want c0ff33";
+
+};
+
+sub config_menu
+{
+my ( $msg0 ) = qq(\nSend me number: => );
+my ( $dead ) = qq(\nY0u selected invalid number: );
+my ( $menu_config ) = <<'X';
+1. Configure ip address.
++!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!
+0. Return menu.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+X
+
+printf("\n".$menu_config);
+while (1)
+	{
+	print $msg0;
+	my $query = <<>>;
+	chomp($query);
+	if ($query eq "1")
+	{
+	} 
+	elsif ($query eq "0")
+	{
+		return &menu;
+	} 
+	else
+	{
+		return &menu;
+	}
+
+	}
+};
+
+
+
+
+
+&menu
 
 
 __END__

@@ -147,6 +147,7 @@ sub config_menu
 {
 my ( $msg0 ) = qq(\nSend me number: => );
 my ( $dead ) = qq(\nY0u selected invalid number: );
+my ( $msg_clear ) = qq([2J\033[H\033[J);
 my ( $menu_config ) = <<'X';
 1. Configure ip address.
 +!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!
@@ -161,21 +162,82 @@ while (1)
 	my $query = <<>>;
 	chomp($query);
 	if ($query eq "1")
-	{
-	} 
+		{
+			printf($msg_clear);
+			&show_ip;
+			&config_ip;
+		} 
 	elsif ($query eq "0")
-	{
-		return &menu;
-	} 
+		{
+			return &menu;
+		} 
 	else
-	{
-		return &menu;
-	}
-
+		{
+			return &menu;
+		}
 	}
 };
 
+sub show_ip 
+{
+	use Net::OpenSSH;
+	my ( $name, $addr, $pass, $off, $sh_ip, $get );
+	( $name ) = qq(YOU_LOGIN);
+	( $addr ) = qq(YOU_IP);
+	( $pass ) = "YOU_PASS";
+	( $off ) = int(7);
+	( $get ) = Net::OpenSSH->new
+	(
+    $addr,
+    user        => $name,
+    password    => $pass,
+    timeout     => $off,
+    master_opts => [ -o => "StrictHostKeyChecking=no" ]
+	);
+	(  $sh_ip ) = ("ip address print brief");
+	my $anchor  = ( $get )->capture( $sh_ip ); printf($anchor)
+	or die "I want c0ff33 and sub show_ip";
 
+};
+
+sub config_ip
+{
+my ( $msg0 ) = qq(\nSend me number: => );
+my ( $msg1 ) = qq(\nSend me ip address: => );
+my ( $msg2 ) = qq(Send me interface:  => );
+my ( $msg_tilda ) = q(~) x 46;
+my ( $msg_tipa ) = ($msg_tilda.$msg1);
+my ( $menu_config_1 ) = <<'configure_ip';
++!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!
+1. Add ip address.
+0. Return configure menu.
++!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!+!
+configure_ip
+printf($menu_config_1);
+while (1) 
+	{
+		printf($msg0),
+		chomp( my $query = <<>> );
+		if ($query eq "1") 
+		{
+			#use Net::OpenSSH;
+			printf($msg_tipa),
+			chomp( my $address = <<>> );
+			printf($msg2),
+			chomp( my $interface = <<>> );
+			printf("\nip address add address=$address interface=$interface\n".$msg_tilda."\n");
+			exit;
+
+		}
+		elsif ($query eq "0")
+		{
+			&config_menu;
+		}
+
+	}
+
+
+};
 
 
 
